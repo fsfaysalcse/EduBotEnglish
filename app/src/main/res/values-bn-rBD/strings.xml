@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Edu Bot</string>
+    <string name="select_device">ডিভাইস নির্বাচন করুন</string>
+    <string name="tap_to_speak">কথা বলার জন্য স্টার্ট বাটন প্রেস করুন</string>
+    <string name="bluetooth_connections_hint">অনুগ্রহ করে ব্লুটুথ ক্যানেকশন ঠিক করুন</string>
+    <string name="faild_bluetooth_con">ডিভাইস ক্যানেকশন করতে ব্যার্থ</string>
+    <string name="answer_prosessing">কিছুক্ষন অপেক্ষা করুন...</string>
+    <string name="i_didnot_find_anything">দুঃক্ষিত কোন তথ্য খুজে পাওয়া যায় নি । দয়াকরে পুনরায় চেস্টা করুন</string>
+    <string name="listing">আমি শুনতেছি...</string>
+    <string name="bot_response">আমি এডু বট আপনার পারসোনাল অ্যাসিস্ট্যান্ট</string>
+    <string name="something_wrong">এখানে ক্যানেকশনে কিছু ত্রুটি রয়েছে</string>
+    <string name="enter_your_query">আপনার প্রশ্ন বলুন</string>
+    <string name="stop">বন্ধ</string>
+    <string name="start">চালু</string>
+    <string name="toolbar_title">এডু বট</string>
+</resources>

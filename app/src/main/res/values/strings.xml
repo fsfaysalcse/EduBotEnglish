@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Edu Bot</string>
+    <string name="select_device">Select Device</string>
+    <string name="tap_to_speak">Tap the start button to speak</string>
+    <string name="bluetooth_connections_hint">Please established bluetooth connection</string>
+    <string name="faild_bluetooth_con">Device fails to connect</string>
+    <string name="answer_prosessing">Answer Processing...</string>
+    <string name="i_didnot_find_anything">Sorry I didn\'t find anything.Please try again with the query</string>
+    <string name="listing">Listening.....</string>
+    <string name="bot_response">Hi I\'am Edu Bot , your personal Assistant. Developed by Robo Tech Valley.</string>
+    <string name="something_wrong">There was some communication issue. Please Try again!</string>
+    <string name="enter_your_query">Please enter your query!</string>
+    <string name="start">START</string>
+    <string name="stop">STOP</string>
+    <string name="toolbar_title">EDU BOT</string>
+</resources>
