@@ -53,21 +53,21 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="right|center_vertical"
+            android:layout_marginRight="50dp"
             android:gravity="center"
-            android:src="@drawable/ic_bluetooth"
-            android:tint="@color/white"
             android:padding="5dp"
-            android:layout_marginRight="50dp"/>
+            android:src="@drawable/ic_bluetooth"
+            android:tint="@color/white" />
 
         <ImageView
             android:id="@+id/settings"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@drawable/ic_settings"
-            android:tint="@color/white"
+            android:layout_gravity="right|center_vertical"
             android:layout_marginRight="10dp"
             android:padding="5dp"
-            android:layout_gravity="right|center_vertical" />
+            android:src="@drawable/ic_settings"
+            android:tint="@color/white" />
     </FrameLayout>
 
 
@@ -92,15 +92,16 @@
             android:layout_toStartOf="@+id/sendBtn"
             android:background="@null"
             android:editable="false"
+            android:ellipsize="end"
             android:focusable="false"
             android:fontFamily="@font/montserrat_regular"
             android:gravity="center"
+            android:textAllCaps="true"
             android:hint="@string/bluetooth_connections_hint"
             android:imeOptions="actionSend"
             android:inputType="text"
             android:padding="10dp"
-            android:ellipsize="end"
-            android:textSize="18sp" />
+            android:textSize="14sp" />
 
 
         <ProgressBar
@@ -130,15 +131,36 @@
             android:visibility="visible"
             app:srcCompat="@drawable/chatbot_send_btn" />
 
-        <Button
-            android:id="@+id/startBtn"
+        <LinearLayout
+            android:weightSum="3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@color/colorPrimary"
-            android:text="@string/start"
-            android:fontFamily="@font/montserrat_bold"
-            android:visibility="visible" />
+            android:orientation="horizontal">
+
+
+
+            <Button
+                android:id="@+id/startBtn"
+                android:layout_weight="2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat_bold"
+                android:background="@color/colorPrimary"
+                android:text="@string/start"
+                android:textColor="@color/white"/>
+
+            <Button
+                android:id="@+id/ignore"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="2.5dp"
+                android:background="@color/red"
+                android:fontFamily="@font/montserrat_bold"
+                android:text="@string/ignore"/>
+
+        </LinearLayout>
 
 
     </LinearLayout>
@@ -156,6 +178,7 @@
             android:id="@+id/chatLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:animateLayoutChanges="true"
             android:orientation="vertical"></LinearLayout>
 
 

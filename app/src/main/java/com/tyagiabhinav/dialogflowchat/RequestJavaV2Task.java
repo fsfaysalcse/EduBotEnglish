@@ -51,7 +51,7 @@ public class RequestJavaV2Task extends AsyncTask<Void, Void, DetectIntentRespons
     @Override
     protected void onPostExecute(DetectIntentResponse response) {
 
-        Log.d(TAG, "onPostExecute: "+response.getQueryResult().toString());
+        Log.d(TAG, "onPostExecute: "+response.getQueryResult().getQueryText()+" | "+response.getQueryResult().getIntent());
         ((MainActivity) activity).callbackV2(response);
     }
 }

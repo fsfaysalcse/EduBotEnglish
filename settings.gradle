@@ -1,1 +1,2 @@
+include ':jsr223'
 include ':app'

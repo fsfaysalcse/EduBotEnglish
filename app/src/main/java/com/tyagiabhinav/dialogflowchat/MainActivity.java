@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,6 +37,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.transition.Transition;
+import androidx.transition.TransitionInflater;
+import androidx.transition.TransitionManager;
 
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -49,6 +53,7 @@ import com.google.cloud.dialogflow.v2.TextInput;
 import com.tyagiabhinav.dialogflowchat.utility.AudioZ;
 import com.tyagiabhinav.dialogflowchat.utility.MainActivity2;
 import com.tyagiabhinav.dialogflowchat.utility.SelectDeviceActivity;
+import com.tyagiabhinav.dialogflowchat.utility.Tools;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private ImageView sendBtn;
     private SpeechRecognizer speechRecognizer;
     private Button micBtn;
+    private Button ignore;
     private Intent speach_intent;
     private boolean firstLaunch = true;
     private String deviceName = null;
@@ -100,7 +106,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         AudioZ.unmuteAudio(this);
 
@@ -127,15 +132,32 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
         chatLayout = findViewById(R.id.chatLayout);
         micBtn = (Button) findViewById(R.id.startBtn);
+        ignore = (Button) findViewById(R.id.ignore);
         sendBtn = findViewById(R.id.sendBtn);
         sendBtn.setOnClickListener(this::sendMessage);
         micBtn.setOnClickListener(this::recognizeAudio);
+
+        micBtn.setTextColor(Color.WHITE);
+        micBtn.setText(getString(R.string.start));
+
 
         findViewById(R.id.settings).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, MainActivity2.class);
                 startActivity(intent);// Activity is started with requestCode 2
+            }
+        });
+
+        ignore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (textToSpeech != null) {
+                    textToSpeech.stop();
+                    textToSpeech.shutdown();
+                }
+                startAnswering();
             }
         });
 
@@ -255,27 +277,22 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     private void initIntent() {
+
         speach_intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         speach_intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, languagePref);
         speach_intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, languagePref);
         speach_intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, languagePref);
-        speach_intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 30000);
+        speach_intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName());
+        speach_intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
+        speach_intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+        speach_intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 3000);
+        speach_intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1000);
+        speach_intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 30000);
     }
 
     private void recognizeAudio(View view) {
         if (isStart == false) {
-            speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
-            speechRecognizer.setRecognitionListener(this);
-            speechRecognizer.startListening(speach_intent);
-            micBtn.setBackgroundColor(ContextCompat.getColor(this, R.color.colorAccent));
-            micBtn.setText(getString(R.string.stop));
-            isStart = true;
-
-            if (textToSpeech != null) {
-                textToSpeech = new TextToSpeech(this, this);
-                textToSpeech.setLanguage(Locale.forLanguageTag(languagePref));
-                initIntent();
-            }
+            startAnswering();
 
 
         } else {
@@ -296,17 +313,20 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
     }
 
-//    private boolean recognizeAudio(View view, MotionEvent motionEvent) {
-//        if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-//            speechRecognizer.stopListening();
-//            if (micButton.isPlaying()) micButton.stop();
-//        }
-//        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-//            micButton.play();
-//            speechRecognizer.startListening(speach_intent);
-//        }
-//        return false;
-//    }
+    private void startAnswering() {
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        speechRecognizer.setRecognitionListener(this);
+        speechRecognizer.startListening(speach_intent);
+        micBtn.setBackgroundColor(ContextCompat.getColor(this, R.color.colorAccent));
+        micBtn.setText(getString(R.string.stop));
+        isStart = true;
+
+        if (textToSpeech != null) {
+            textToSpeech = new TextToSpeech(this, this);
+            textToSpeech.setLanguage(Locale.forLanguageTag(languagePref));
+            initIntent();
+        }
+    }
 
 
     private void initV2Chatbot() {
@@ -344,20 +364,29 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             String botReply = response.getQueryResult().getFulfillmentText();
             Log.d(TAG, "V2 Bot Reply: " + botReply);
 
-            if (TextUtils.isEmpty(botReply) || botReply == null) {
-                botReply = getString(R.string.i_didnot_find_anything);
-                texttoSpeak(botReply);
-                showTextView(botReply, BOT);
-            } else {
-                texttoSpeak(botReply);
-                showTextView(botReply, BOT);
+            String intent_action = response.getQueryResult().getIntent().getDisplayName();
+            String query_parameters = response.getQueryResult().getQueryText();
+
+            if (intent_action.equals("math_operations")) {
+                String math_result = Tools.mathResultFromNaturalLanguage(query_parameters);
+                texttoSpeak(math_result);
+                showTextView(math_result, BOT);
+            }else {
+                if (TextUtils.isEmpty(botReply) || botReply == null) {
+                    botReply = getString(R.string.i_didnot_find_anything);
+                    texttoSpeak(botReply);
+                    showTextView(botReply, BOT);
+
+                } else {
+                    texttoSpeak(botReply);
+                    showTextView(botReply, BOT);
+                }
             }
 
             queryEditText.setHint(getString(R.string.tap_to_speak));
 
             try {
-                String intent_action = response.getQueryResult().getIntent().getDisplayName();
-                intentAction(intent_action);
+                intentAction(intent_action, query_parameters);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -370,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
 
-    private void intentAction(String intent_action) {
+    private void intentAction(String intent_action, String query_parameters) {
         if (intent_action == null || TextUtils.isEmpty(intent_action)) {
             return;
         }
@@ -415,6 +444,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 layout = getBotLayout();
                 break;
         }
+        Transition transition = TransitionInflater.from(layout.getContext())
+                .inflateTransition(R.transition.my_transition);
+
+
+        TransitionManager.beginDelayedTransition(chatLayout, transition);
         layout.setFocusableInTouchMode(true);
         chatLayout.addView(layout); // move focus to text view to automatically make it scroll up if softfocus
         TextView tv = layout.findViewById(R.id.chatMsg);
@@ -501,6 +535,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override
             public void onStart(String utteranceId) {
+                micBtn.setText(getString(R.string.dotdotdot));
                 micBtn.setEnabled(false);
             }
 
@@ -509,14 +544,14 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             public void onDone(String utteranceId) {
 
                 try {
-                    Thread.sleep(3000L);
+                    Thread.sleep(2000L);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
 
                             speechRecognizer.startListening(speach_intent);
                             micBtn.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.colorAccent));
-                            micBtn.setText(R.string.stop);
+                            micBtn.setText(getString(R.string.stop));
                             isStart = true;
                             micBtn.setEnabled(true);
                             queryEditText.setHint(getString(R.string.listing));
@@ -571,6 +606,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         queryEditText.setHint(getString(R.string.listing));
         Log.d(TAG, "onBeginningOfSpeech: ");
         isStart = true;
+        micBtn.setTag(getString(R.string.dotdotdot));
     }
 
     @Override
@@ -591,12 +627,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
     @Override
     public void onError(int i) {
-        speechRecognizer.startListening(speach_intent);
-        micBtn.setBackgroundColor(ContextCompat.getColor(MainActivity.this, R.color.colorAccent));
-        micBtn.setText(getString(R.string.stop));
-        isStart = true;
-        micBtn.setEnabled(true);
-        queryEditText.setHint(getString(R.string.listing));
+        speechRecognizer.destroy();
+        speechRecognizer = null;
+        startAnswering();
 
 
     }
