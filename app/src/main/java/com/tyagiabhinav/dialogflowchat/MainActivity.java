@@ -109,6 +109,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
         AudioZ.unmuteAudio(this);
 
+      //  Log.d(TAG, "onCreate: sjfddslfkjlsd"+Tools.getDateTime());
+
 
         /*--------TTS-----------*/
 
@@ -371,6 +373,14 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 String math_result = Tools.mathResultFromNaturalLanguage(query_parameters);
                 texttoSpeak(math_result);
                 showTextView(math_result, BOT);
+            }else if (intent_action.equals("current_date")){
+                String timeDate = Tools.getDate();
+                texttoSpeak(timeDate);
+                showTextView(timeDate, BOT);
+            }else if (intent_action.equals("current_time")){
+                String timeDate = Tools.getTime();
+                texttoSpeak(timeDate);
+                showTextView(timeDate, BOT);
             }else {
                 if (TextUtils.isEmpty(botReply) || botReply == null) {
                     botReply = getString(R.string.i_didnot_find_anything);
@@ -544,7 +554,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             public void onDone(String utteranceId) {
 
                 try {
-                    Thread.sleep(2000L);
+                    Thread.sleep(1000L);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
